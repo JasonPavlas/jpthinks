@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Mvc;
 using WebApp.Services;
 
 namespace WebApp.Controllers;
@@ -8,10 +9,12 @@ namespace WebApp.Controllers;
 public class WeatherForecastController : ControllerBase
 {
     private readonly WeatherService _weatherService;
+    private readonly TelemetryClient _telemetryClient;
 
-    public WeatherForecastController(WeatherService weatherService)
+    public WeatherForecastController(WeatherService weatherService, TelemetryClient telemetryClient)
     {
         _weatherService = weatherService;
+        _telemetryClient = telemetryClient;
     }
 
     [HttpGet]
@@ -19,10 +22,19 @@ public class WeatherForecastController : ControllerBase
     {
         try
         {
-            return await _weatherService.GetJacksonvilleWeatherAsync();
+            _telemetryClient.TrackEvent("WeatherForecastRequested");
+            var result = await _weatherService.GetJacksonvilleWeatherAsync();
+            _telemetryClient.TrackEvent("WeatherForecastRetrieved", 
+                properties: new Dictionary<string, string> 
+                { 
+                    { "temperature", result.TemperatureF.ToString() },
+                    { "summary", result.Summary ?? "No summary" }
+                });
+            return result;
         }
         catch (HttpRequestException ex)
         {
+            _telemetryClient.TrackException(ex);
             return BadRequest($"Error getting weather data: {ex.Message}");
         }
     }
