@@ -3,7 +3,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "JP Thinks API",
+        Version = "v1",
+        Description = "API endpoints for JP Thinks application"
+    });
+});
 
 var app = builder.Build();
 
@@ -15,8 +23,16 @@ if (!app.Environment.IsDevelopment())
 }
 else 
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // Configure Swagger endpoints explicitly
+    app.UseSwagger(c =>
+    {
+        c.SerializeAsV2 = false;
+    });
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "JP Thinks API V1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
 app.UseHttpsRedirection();
