@@ -6,15 +6,18 @@ export function Ball({ startX }) {
   const [opacity, setOpacity] = useState(1);
   
   useEffect(() => {
-    let frame = 0;
-    const gravity = 0.8;
+    // Check for mobile device
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const gravity = isMobile ? 1.2 : 0.8; // Faster on mobile
+    const bounceVelocity = isMobile ? 
+      -(Math.random() * 12 + 8) : // Smaller bounce on mobile
+      -(Math.random() * 15 + 10);
+    
+    let frame = 0;  // Declare frame here
     let velocity = 0;
     let hasBounced = false;
     let currentY = -20;
     
-    // Random bounce height between 100 and 300 pixels
-    const bounceVelocity = -(Math.random() * 15 + 10);
-
     const animate = () => {
       velocity += gravity;
       currentY += velocity;
@@ -37,7 +40,13 @@ export function Ball({ startX }) {
     };
 
     frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
+    
+    // Cleanup function
+    return () => {
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+    };
   }, [startX]);
 
   return (

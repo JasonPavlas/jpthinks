@@ -6,4 +6,9 @@
   border-radius: 50%;
   pointer-events: none;
   transition: opacity 0.5s ease;
+  /* Add prefers-reduced-motion support */
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    animation: none;
+  }
 } 

@@ -8,7 +8,8 @@ export class Counter extends Component {
     super(props);
     this.state = { 
       currentCount: 0,
-      balls: []
+      balls: [],
+      MAX_BALLS: 50  // Limit the number of concurrent balls
     };
     this.incrementCounter = this.incrementCounter.bind(this);
   }
@@ -17,7 +18,7 @@ export class Counter extends Component {
     this.setState(prevState => ({
       currentCount: prevState.currentCount + 1,
       balls: [
-        ...prevState.balls,
+        ...prevState.balls.slice(-(this.state.MAX_BALLS - 1)), // Keep only recent balls
         {
           id: Date.now(),
           x: Math.random() * (window.innerWidth - 20) // Random X position
@@ -25,12 +26,17 @@ export class Counter extends Component {
       ]
     }));
 
-    // Remove balls after animation
+    // Clean up balls sooner
     setTimeout(() => {
       this.setState(prevState => ({
         balls: prevState.balls.slice(1)
       }));
-    }, 3000);
+    }, 2000); // Reduced from 3000ms
+  }
+
+  componentWillUnmount() {
+    // Clear any remaining timeouts when component unmounts
+    this.setState({ balls: [] });
   }
 
   render() {
