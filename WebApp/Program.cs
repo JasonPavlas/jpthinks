@@ -1,3 +1,5 @@
+using WebApp.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +14,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API endpoints for JP Thinks application"
     });
 });
+builder.Services.AddHttpClient<WeatherService>();
 
 var app = builder.Build();
 
